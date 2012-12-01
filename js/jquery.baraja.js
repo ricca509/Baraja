@@ -37,6 +37,8 @@
 	};
 
 	$.Baraja.prototype = {
+        // Array to hold updatedStack callbacks
+		_updatedStack : [],
 
 		_init : function( options ) {
 			
@@ -140,6 +142,11 @@
 			} );
 
 		},
+		_onUpdatedStack : function( callback ) {
+			if (typeof(callback) === 'function') {
+				this._updatedStack.push(callback);
+			}			
+		},
 		_updateStack : function( $el, dir ) {
 
 			var currZIndex = Number( $el.css( 'z-index' ) ),
@@ -157,6 +164,9 @@
 
 			} ).css( 'z-index', extra );
 
+			for (var i = 0; i < this._updatedStack.length; i++) {
+				this._updatedStack[i]($el);
+			}
 		},
 		_initEvents : function() {
 
@@ -591,7 +601,17 @@
 
 			this._dispatch( this._add, $elems );
 
-		}
+		},
+		// public method: bring the element in front of the stack
+		move2front : function( $elem ) {
+			this._dispatch( this._move2front, $elem);
+		},
+                // event subscriber
+                on : function (eventName, callback) {
+                    if (eventName === 'updateStack') {
+                        this._dispatch( this._onUpdatedStack, callback);
+                    }                        
+                }
 
 	};
 	
