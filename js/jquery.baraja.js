@@ -4,12 +4,12 @@
  *
  * Licensed under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
- * 
+ *
  * Copyright 2012, Codrops
  * http://www.codrops.com
  */
 ;( function( $, window, undefined ) {
-    
+
     'use strict';
 
     // global
@@ -18,10 +18,10 @@
     jQuery.fn.reverse = [].reverse;
 
     $.Baraja = function( options, element ) {
-        
+
         this.$el = $( element );
         this._init( options );
-        
+
     };
 
     // the options
@@ -37,9 +37,11 @@
     };
 
     $.Baraja.prototype = {
+                // Array to hold updatedStack callbacks
+        _updatedStack : [],
 
         _init : function( options ) {
-            
+
             // options
             this.options = $.extend( true, {}, $.Baraja.defaults, options );
 
@@ -84,17 +86,17 @@
                 // if center:true, then the first one will have 45deg
                 // and the last one -45deg; in both cases the difference is 90deg
                 range : 90,
-                // this defines the position of the first item 
+                // this defines the position of the first item
                 // (to the right, to the left)
                 // and its angle (clockwise / counterclockwise)
                 direction : 'right',
                 // transform origin:
-                // you can also pass a minX and maxX, meaning the left value 
-                // will vary between minX and maxX 
+                // you can also pass a minX and maxX, meaning the left value
+                // will vary between minX and maxX
                 origin : { x : 25, y : 100 },
                 // additional translation of each item
                 translation : 0,
-                // if the cards should be centered after the transform 
+                // if the cards should be centered after the transform
                 // is applied
                 center : true,
                 // add a random factor to the final transform
@@ -122,7 +124,7 @@
             if( settings.scatter == undefined ) {
                 settings.scatter = this.fanSettings.scatter
             }
-            
+
             this.direction = settings.direction;
 
             return settings;
@@ -140,23 +142,38 @@
             } );
 
         },
+        _onUpdatedStack : function( callback ) {
+            if (typeof(callback) === 'function') {
+                this._updatedStack.push(callback);
+            }
+        },
+                _offUpdatedStack : function( callback ) {
+            if (typeof(callback) === 'function') {
+                for(var i = 0; i < this._updatedStack.length; i++) {
+                                    this._updatedStack.splice(this._updatedStack.indexOf(callback), 1);
+                                }
+            }
+        },
         _updateStack : function( $el, dir ) {
 
             var currZIndex = Number( $el.css( 'z-index' ) ),
                 newZIndex = dir === 'next' ? this.itemZIndexMin - 1 : this.itemZIndexMin + this.itemsCount,
                 extra = dir === 'next' ? '+=1' : '-=1';
-            
+
             $el.css( 'z-index', newZIndex );
 
             this.$items.filter( function() {
 
                 var zIdx = Number( $( this ).css( 'z-index' ) ),
                     cond = dir === 'next' ? zIdx < currZIndex : zIdx > currZIndex
-                
+
                 return cond;
 
             } ).css( 'z-index', extra );
 
+            for (var i = 0; i < this._updatedStack.length; i++) {
+                this._updatedStack[i]($el);
+            }
         },
         _initEvents : function() {
 
@@ -230,7 +247,7 @@
             }
 
             var styleCSS = '';
-            
+
             prop === 'transform' ?
                 styleCSS = {
                     '-webkit-transition' : '-webkit-transform ' + speed + 'ms ' + easing + ' ' + delay + 'ms',
@@ -274,7 +291,7 @@
                 if( fncomplete ) {
 
                     fncomplete.call();
-                    
+
                 }
 
             }
@@ -284,17 +301,17 @@
 
             this.closed = false;
 
-            var self = this, 
+            var self = this,
                 extra = 15,
                 cond = dir === 'next' ? self.itemZIndexMin + self.itemsCount - 1 : self.itemZIndexMin,
                 $item = this.$items.filter( function() {
-                    
+
                     return Number( $( this ).css( 'z-index' ) ) === cond;
 
                 } ),
                 translation = dir === 'next' ? $item.outerWidth( true ) + extra : $item.outerWidth( true ) * -1 - extra,
                 rotation = dir === 'next' ? 5 : 5 * -1;
-                
+
             this._setTransition( $item, 'transform', this.options.speed, this.options.easing );
 
             this._applyTransition( $item, { transform : 'translate(' + translation + 'px) rotate(' + rotation + 'deg)' }, function() {
@@ -303,7 +320,7 @@
                 self._updateStack( $item, dir );
 
                 self._applyTransition( $item, { transform : 'translate(0px) rotate(0deg)' }, function() {
-                    
+
                     $item.off( self.transEndEventName );
                     self.isAnimating = false;
                     self.closed = true;
@@ -372,14 +389,14 @@
             }
 
             this._applyTransition( $items, { transform : 'none' }, function() {
-                
+
                 self.closed = true;
                 $items.off( self.transEndEventName );
                 self._resetTransition( $items );
                 setTimeout(function() {
-                    
+
                     self._setOrigin( $items, 50, 50 );
-                    
+
                     if( callback ) {
                         callback.call();
                     }
@@ -396,7 +413,7 @@
             this.closed = false;
 
             settings = this._validateDefaultFanSettings( settings || {} );
-            
+
             // set transform origins
             // if minX and maxX are passed:
             if( settings.origin.minX && settings.origin.maxX ) {
@@ -411,7 +428,7 @@
                         originX = pos * ( max - min + stepOrigin ) / self.itemsCount + min;
 
                     if( settings.direction === 'left' ) {
-                                
+
                         originX = max + min - originX;
 
                     }
@@ -419,7 +436,7 @@
                     self._setOrigin( $( this ), originX, settings.origin.y );
 
                 } );
-            
+
             }
             else {
 
@@ -432,7 +449,7 @@
             var stepAngle = settings.range / ( this.itemsCount - 1 ),
                 stepTranslation = settings.translation / ( this.itemsCount - 1 ),
                 cnt = 0;
-            
+
             this.$items.each( function( i ) {
 
                 var $el = $( this ),
@@ -442,17 +459,17 @@
                     position = stepTranslation * ( self.itemsCount - pos - 1 );
 
                 if( settings.direction === 'left' ) {
-                    
+
                     angle *= -1;
                     position *= -1;
 
                 }
 
                 if( settings.scatter ) {
-                    
+
                     var extraAngle = Math.floor( Math.random() * stepAngle ),
                         extraPosition = Math.floor( Math.random() * stepTranslation ) ;
-                    
+
                     // not for the first item..
                     if( pos !== self.itemsCount - 1 ) {
 
@@ -470,7 +487,7 @@
 
                     ++cnt;
                     $el.off( self.transEndEventName );
-                    
+
                     if( cnt === self.itemsCount - 1 ) {
                         self.isAnimating = false;
                     }
@@ -483,7 +500,7 @@
         // adds new elements to the deck
         _add : function( $elems ) {
 
-            var self = this, 
+            var self = this,
                 newElemsCount = $elems.length, cnt = 0;
 
             $elems.css( 'opacity', 0 ).appendTo( this.$el );
@@ -491,10 +508,10 @@
             // reset
             this.$items = this.$el.children( 'li' );
             this.itemsCount = this.$items.length;
-            
+
             // set z-indexes
             this._setStack( $elems );
-            
+
             // animate new items
             $elems.css( 'transform', 'scale(1.8) translate(200px) rotate(15deg)' ).reverse().each( function( i ) {
 
@@ -504,7 +521,7 @@
                 self._applyTransition( $el, { transform : 'none', opacity : 1 }, function() {
 
                     ++cnt;
-                    
+
                     $el.off( self.transEndEventName );
                     self._resetTransition( $el );
 
@@ -525,7 +542,7 @@
         _prepare : function( callback ) {
 
             var self = this;
-            
+
             if( !this.closed ) {
 
                 this._close( function() {
@@ -551,7 +568,7 @@
             }
 
             this.isAnimating = true;
-            
+
             this._prepare( function() {
 
                 action.call( self, args );
@@ -595,71 +612,82 @@
         // public method: bring the element in front of the stack
         move2front : function( $elem ) {
             this._dispatch( this._move2front, $elem);
-        }
+        },
+                // event subscriber
+                on : function (eventName, callback) {
+                    if (eventName === 'updateStack') {
+                        this._dispatch( this._onUpdatedStack, callback);
+                    }
+                },
+                off : function (eventName, callback) {
+                    if (eventName === 'updateStack') {
+                        this._dispatch( this._offUpdatedStack, callback);
+                    }
+                }
 
     };
-    
+
     var logError = function( message ) {
 
         if ( window.console ) {
 
             window.console.error( message );
-        
+
         }
 
     };
-    
+
     $.fn.baraja = function( options ) {
 
         var instance = $.data( this, 'baraja' );
-        
+
         if ( typeof options === 'string' ) {
-            
+
             var args = Array.prototype.slice.call( arguments, 1 );
-            
+
             this.each(function() {
-            
+
                 if ( !instance ) {
 
                     logError( "cannot call methods on baraja prior to initialization; " +
                     "attempted to call method '" + options + "'" );
                     return;
-                
+
                 }
-                
+
                 if ( !$.isFunction( instance[options] ) || options.charAt(0) === "_" ) {
 
                     logError( "no such method '" + options + "' for baraja instance" );
                     return;
-                
+
                 }
-                
+
                 instance[ options ].apply( instance, args );
-            
+
             });
-        
-        } 
+
+        }
         else {
-        
+
             this.each(function() {
-                
+
                 if ( instance ) {
 
                     instance._init();
-                
+
                 }
                 else {
 
                     instance = $.data( this, 'baraja', new $.Baraja( options, this ) );
-                
+
                 }
 
             });
-        
+
         }
-        
+
         return instance;
-        
+
     };
-    
+
 } )( jQuery, window );
