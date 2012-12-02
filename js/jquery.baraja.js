@@ -179,7 +179,7 @@
         },
         // Returns the element at the top of the deck
         _getTopEl : function() {                    
-                var max = 0, $el;
+                var max = -999, $el;
                 this.$items.each( function( i ) {
                         var zIndex = $( this ).css( 'z-index' ) - 0;
                         if (zIndex > max) {
