@@ -37,7 +37,7 @@
     };
 
     $.Baraja.prototype = {
-                // Array to hold updatedStack callbacks
+        // Array to hold updatedStack callbacks
         _updatedStack : [],
 
         _init : function( options ) {
@@ -173,18 +173,18 @@
                 this._updatedStack[i](this._getTopEl(), dir);
             }
         },
-                _getTopEl : function() {                    
-                        var max = 0, $el;
-                        this.$items.each( function( i ) {
-                                var zIndex = $( this ).css( 'z-index' ) - 0;
-                if (zIndex > max) {
-                                    max = zIndex;
-                                    $el = $( this );
-                                }
-                        } );     
-                        
-                        return $el;
-                },
+        _getTopEl : function() {                    
+                var max = 0, $el;
+                this.$items.each( function( i ) {
+                        var zIndex = $( this ).css( 'z-index' ) - 0;
+        if (zIndex > max) {
+                            max = zIndex;
+                            $el = $( this );
+                        }
+                } );     
+                
+                return $el;
+        },
         _initEvents : function() {
 
             var self = this;
