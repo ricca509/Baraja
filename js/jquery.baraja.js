@@ -174,11 +174,11 @@
             // Calls every callback function passing the 
             // top element
             for (var i = 0; i < this._updatedStack.length; i++) {
-                this._updatedStack[i](this._getTopEl(), dir);
+                this._updatedStack[i](this._getTopStackElement(), dir);
             }
         },
         // Returns the element at the top of the deck
-        _getTopEl : function() {                    
+        _getTopStackElement : function() {                    
                 var max = -999, $el;
                 this.$items.each( function( i ) {
                         var zIndex = $( this ).css( 'z-index' ) - 0;
