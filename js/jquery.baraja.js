@@ -629,19 +629,19 @@
         move2front : function( $elem ) {
             this._dispatch( this._move2front, $elem);
         },
-        // events subscriber
+        // public method: events subscriber
         on : function (eventName, callback) {
             if (eventName === 'updateStack') {
                 this._dispatch( this._onUpdatedStack, callback);
             }
         },
-        // events unscriber
+        // public method: events unscriber
         off : function (eventName, callback) {
             if (eventName === 'updateStack') {
                 this._dispatch( this._offUpdatedStack, callback);
             }
         },
-        // Return the jQuery element at the top of the stack
+        // public method: returns the jQuery element at the top of the stack
         getTopStackElement : function() {
             return this._getTopStackElement();
         }
