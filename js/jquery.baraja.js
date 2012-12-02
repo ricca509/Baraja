@@ -142,14 +142,16 @@
             } );
 
         },
+        // Subscriber method for 'updatedStack' event
         _onUpdatedStack : function( callback ) {
             if (typeof(callback) === 'function') {
                 this._updatedStack.push(callback);
             }
         },
-                _offUpdatedStack : function( callback ) {
+        // Unscriber method for 'updatedStack' event
+        _offUpdatedStack : function( callback ) {
             if (typeof(callback) === 'function') {              
-                                    this._updatedStack.splice(this._updatedStack.indexOf(callback), 1);                                
+                this._updatedStack.splice(this._updatedStack.indexOf(callback), 1);                                
             }
         },
         _updateStack : function( $el, dir ) {
@@ -169,15 +171,18 @@
 
             } ).css( 'z-index', extra );                                                
 
+            // Calls every callback function passing the 
+            // top element
             for (var i = 0; i < this._updatedStack.length; i++) {
                 this._updatedStack[i](this._getTopEl(), dir);
             }
         },
+        // Returns the element at the top of the deck
         _getTopEl : function() {                    
                 var max = 0, $el;
                 this.$items.each( function( i ) {
                         var zIndex = $( this ).css( 'z-index' ) - 0;
-        if (zIndex > max) {
+                        if (zIndex > max) {
                             max = zIndex;
                             $el = $( this );
                         }
@@ -212,13 +217,13 @@
             }
 
             this.$el.on( 'click.baraja', 'li', function() {
-                                /*
+                /* TODO: check this
                 if( !self.isAnimating ) {
 
                     self._move2front( $( this ) );
 
                 }
-                                */
+                */
             } );
 
         },
@@ -623,17 +628,18 @@
         move2front : function( $elem ) {
             this._dispatch( this._move2front, $elem);
         },
-                // event subscriber
-                on : function (eventName, callback) {
-                    if (eventName === 'updateStack') {
-                        this._dispatch( this._onUpdatedStack, callback);
-                    }
-                },
-                off : function (eventName, callback) {
-                    if (eventName === 'updateStack') {
-                        this._dispatch( this._offUpdatedStack, callback);
-                    }
-                }
+        // events subscriber
+        on : function (eventName, callback) {
+            if (eventName === 'updateStack') {
+                this._dispatch( this._onUpdatedStack, callback);
+            }
+        },
+        // events unscriber
+        off : function (eventName, callback) {
+            if (eventName === 'updateStack') {
+                this._dispatch( this._offUpdatedStack, callback);
+            }
+        }
 
     };
 
