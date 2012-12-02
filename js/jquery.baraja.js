@@ -595,7 +595,8 @@
         close : function( settings ) {
 
             if( this.isAnimating ) {
-            //  return false;
+                // TODO: check this
+                // return false;
             }
             this._close();
 
@@ -639,6 +640,10 @@
             if (eventName === 'updateStack') {
                 this._dispatch( this._offUpdatedStack, callback);
             }
+        },
+        // Return the jQuery element at the top of the stack
+        getTopStackElement : function() {
+            return this._getTopStackElement();
         }
 
     };
