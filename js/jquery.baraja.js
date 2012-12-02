@@ -148,10 +148,8 @@
             }
         },
                 _offUpdatedStack : function( callback ) {
-            if (typeof(callback) === 'function') {
-                for(var i = 0; i < this._updatedStack.length; i++) {
-                                    this._updatedStack.splice(this._updatedStack.indexOf(callback), 1);
-                                }
+            if (typeof(callback) === 'function') {              
+                                    this._updatedStack.splice(this._updatedStack.indexOf(callback), 1);                                
             }
         },
         _updateStack : function( $el, dir ) {
@@ -169,12 +167,24 @@
 
                 return cond;
 
-            } ).css( 'z-index', extra );
+            } ).css( 'z-index', extra );                                                
 
             for (var i = 0; i < this._updatedStack.length; i++) {
-                this._updatedStack[i]($el);
+                this._updatedStack[i](this._getTopEl(), dir);
             }
         },
+                _getTopEl : function() {                    
+                        var max = 0, $el;
+                        this.$items.each( function( i ) {
+                                var zIndex = $( this ).css( 'z-index' ) - 0;
+                if (zIndex > max) {
+                                    max = zIndex;
+                                    $el = $( this );
+                                }
+                        } );     
+                        
+                        return $el;
+                },
         _initEvents : function() {
 
             var self = this;
@@ -202,13 +212,13 @@
             }
 
             this.$el.on( 'click.baraja', 'li', function() {
-
+                                /*
                 if( !self.isAnimating ) {
 
                     self._move2front( $( this ) );
 
                 }
-
+                                */
             } );
 
         },
@@ -580,7 +590,7 @@
         close : function( settings ) {
 
             if( this.isAnimating ) {
-                return false;
+            //  return false;
             }
             this._close();
 
